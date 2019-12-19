@@ -19,6 +19,7 @@
     <script src="./libs/agora-rtm-sdk-1.2.1.js"></script>
     <script>
       const messagesDiv = document.getElementById("messages");
+      const channelId = "test_channel";
 
       const addMessage = (msg) => {
         const div = document.createElement("div");
@@ -36,13 +37,13 @@
       client.on("ConnectionStateChanged", (newState, reason) => {
         addMessage("ConnectionStateChanged: newState: " + newState + ", reason: " + reason);
 
-        if (client.channels[params.channelName] || (client.channels[params.channelName] && client.channels[params.channelName].joined)) {
+        if (client.channels[channelId] || (client.channels[channelId] && client.channels[channelId].joined)) {
           return;
         }
 
-        client.joinChannel("test_channel").then(() => {
-          client.channels[params.channelName].joined = true;
-          addMessage(client.accountName + " join test_channel success");
+        client.joinChannel(channelId).then(() => {
+          client.channels[channelId].joined = true;
+          addMessage(client.accountName + " join "+channelId+" success");
         }).catch((err) => {
           addMessage("Join channel failed, please open console see more details.");
           console.error(err)

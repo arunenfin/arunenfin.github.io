@@ -19,36 +19,53 @@
     <script src="./libs/agora-rtm-sdk-1.2.1.js"></script>
     <script>
       const messagesDiv = document.getElementById("messages");
+
+      const addMessage = (msg) => {
+        const div = document.createElement("div");
+        div.innerHTML = msg;
+        messagesDiv.appendChild(div);
+      }
+
       const client = AgoraRTM.createInstance('5a806f727de346f4b06b567ad1a64036', { enableLogUpload: false });
       client.login({uid: "wsdfe", token: "0065a806f727de346f4b06b567ad1a64036IADhuEFhyWDTxPxQVPSH3utfJ6P0s52mn7s6TBGXhbkjM7r++7UAAAAAEAAFZYx1gfn8XQEA6AOB+fxd"})
       .then(console.log)
-      .catch(console.log)
+      .catch(e => {
+        addMessage(e.message)
+      })
 
       client.on("ConnectionStateChanged", (newState, reason) => {
-        const div = document.createElement("div");
-        div.innerHTML = "ConnectionStateChanged: newState: " + newState + ", reason: " + reason;
-        messagesDiv.appendChild(div)
+        addMessage("ConnectionStateChanged: newState: " + newState + ", reason: " + reason);
+
+        if (rtm.channels[params.channelName] || (rtm.channels[params.channelName] && rtm.channels[params.channelName].joined)) {
+          return;
+        }
+
+        client.joinChannel("test_channel").then(() => {
+          client.channels[params.channelName].joined = true;
+          addMessage(rtm.accountName + " join test_channel success");
+        }).catch((err) => {
+          addMessage("Join channel failed, please open console see more details.");
+          console.error(err)
+        })
       })
 
       client.on("MemberJoined", ({channelName, args}) => {
         const memberId = args[0];
-        const div = document.createElement("div");
-        div.innerHTML = "MemberJoined: channel "+channelName+" member: "+memberId+" joined";
-        messagesDiv.appendChild(div)
+        addMessage("MemberJoined: channel "+channelName+" member: "+memberId+" joined");
       });
 
       client.on("MemberLeft", ({channelName, args}) => {
         const memberId = args[0];
-        const div = document.createElement("div");
-        div.innerHTML = "MemberLeft: channel "+channelName+" member: "+memberId+" left";
-        messagesDiv.appendChild(div)
+        addMessage("MemberLeft: channel "+channelName+" member: "+memberId+" left");
       });
 
       client.on("ChannelMessage", ({channelName, args}) => {
         const [message, memberId] = args;
-        const div = document.createElement("div");
-        div.innerHTML = "ChannelMessage: channel "+channelName+", messsage: "+message.text+", memberId: "+memberId;
-        messagesDiv.appendChild(div)
+        addMessage("ChannelMessage: channel "+channelName+", messsage: "+message.text+", memberId: "+memberId);
+      });
+
+      client.on("MessageFromPeer", (message, peerId) => {
+        addMessage("message "+ message.text + " peerId" + peerId);
       });
     </script>
   </body>

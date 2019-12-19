@@ -22,6 +22,7 @@
       const messagesDiv = document.getElementById("messages");
       const textinput = document.getElementById("textip");
       const channelId = "test_channel";
+      const uid = "wsdfe";
       let timer = null;
 
       const addMessage = (msg) => {
@@ -43,7 +44,7 @@
 
       const client = AgoraRTM.createInstance('5a806f727de346f4b06b567ad1a64036', { enableLogUpload: false });
       const channel = client.createChannel(channelId);
-      client.login({uid: "wsdfe", token: "0065a806f727de346f4b06b567ad1a64036IADhuEFhyWDTxPxQVPSH3utfJ6P0s52mn7s6TBGXhbkjM7r++7UAAAAAEAAFZYx1gfn8XQEA6AOB+fxd"})
+      client.login({uid: uid, token: "0065a806f727de346f4b06b567ad1a64036IADhuEFhyWDTxPxQVPSH3utfJ6P0s52mn7s6TBGXhbkjM7r++7UAAAAAEAAFZYx1gfn8XQEA6AOB+fxd"})
       .then(console.log)
       .catch(e => {
         addMessage(e.message)
@@ -54,7 +55,7 @@
 
         if(newState === "CONNECTED") {
           channel.join().then(() => {
-            addMessage(client.accountName + " join "+channelId+" success");
+            addMessage(uid + " join "+channelId+" success");
           }).catch((err) => {
             addMessage("Join channel failed, please open console see more details.");
             console.error(err)

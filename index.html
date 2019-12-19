@@ -22,8 +22,15 @@
       const messagesDiv = document.getElementById("messages");
       const textinput = document.getElementById("textip");
       const channelId = "test_channel";
-      const uid = "wsdfe";
+      const appId = '5a806f727de346f4b06b567ad1a64036';
+      let uid = "wsdfe";
+      let token = "0065a806f727de346f4b06b567ad1a64036IADhuEFhyWDTxPxQVPSH3utfJ6P0s52mn7s6TBGXhbkjM7r++7UAAAAAEAAFZYx1gfn8XQEA6AOB+fxd";
       let timer = null;
+
+      if(!window.location.host) {
+        uid = "ert";
+        token = "0065a806f727de346f4b06b567ad1a64036IAAnVt705asVjVZI+dxeSSK0bi+fqZl7AptXwIWPs4cX1Ih+PPsAAAAAEAAFZYx10v/8XQEA6APS//xd"
+      }
 
       const addMessage = (msg) => {
         const div = document.createElement("div");
@@ -42,9 +49,9 @@
         }, 1000)
       })
 
-      const client = AgoraRTM.createInstance('5a806f727de346f4b06b567ad1a64036', { enableLogUpload: false });
+      const client = AgoraRTM.createInstance(appId, { enableLogUpload: false });
       const channel = client.createChannel(channelId);
-      client.login({uid: uid, token: "0065a806f727de346f4b06b567ad1a64036IADhuEFhyWDTxPxQVPSH3utfJ6P0s52mn7s6TBGXhbkjM7r++7UAAAAAEAAFZYx1gfn8XQEA6AOB+fxd"})
+      client.login({uid: uid, token: token})
       .then(console.log)
       .catch(e => {
         addMessage(e.message)

@@ -13,13 +13,16 @@
   <body>
     <h1>Agora RTM</h1>
     <p>This is for testing Agora RTM</p>
+    <input id="textip" type="text" />
     <p id="messages"></p>
 
     <!-- Optional JavaScript -->
     <script src="./libs/agora-rtm-sdk-1.2.1.js"></script>
     <script>
       const messagesDiv = document.getElementById("messages");
+      const textinput = document.getElementById("textip");
       const channelId = "test_channel";
+      let timer = null;
 
       const addMessage = (msg) => {
         const div = document.createElement("div");
@@ -27,8 +30,19 @@
         messagesDiv.appendChild(div);
       }
 
+      textinput.addEventListener('keyup', () => {
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+          channel.sendMessage({ text: textinput.value }).then(() => {
+            addMessage("message sent")
+          }).catch(error => {
+            addMessage(error.message)
+          })
+        }, 500)
+      })
+
       const client = AgoraRTM.createInstance('5a806f727de346f4b06b567ad1a64036', { enableLogUpload: false });
-      client.channels = {};
+      const channel = client.createChannel(channelId);
       client.login({uid: "wsdfe", token: "0065a806f727de346f4b06b567ad1a64036IADhuEFhyWDTxPxQVPSH3utfJ6P0s52mn7s6TBGXhbkjM7r++7UAAAAAEAAFZYx1gfn8XQEA6AOB+fxd"})
       .then(console.log)
       .catch(e => {
@@ -38,32 +52,26 @@
       client.on("ConnectionStateChanged", (newState, reason) => {
         addMessage("ConnectionStateChanged: newState: " + newState + ", reason: " + reason);
 
-        if (client.channels[channelId] || (client.channels[channelId] && client.channels[channelId].joined)) {
-          return;
+        if(newState === "CONNECTED") {
+          channel.join().then(() => {
+            addMessage(client.accountName + " join "+channelId+" success");
+          }).catch((err) => {
+            addMessage("Join channel failed, please open console see more details.");
+            console.error(err)
+          })
         }
-
-        client.joinChannel(channelId).then(() => {
-          client.channels[channelId].joined = true;
-          addMessage(client.accountName + " join "+channelId+" success");
-        }).catch((err) => {
-          addMessage("Join channel failed, please open console see more details.");
-          console.error(err)
-        })
       })
 
-      client.on("MemberJoined", ({channelName, args}) => {
-        const memberId = args[0];
-        addMessage("MemberJoined: channel "+channelName+" member: "+memberId+" joined");
+      channel.on("MemberJoined", memberId => {
+        addMessage("MemberJoined: channel "+channelId+" member: "+memberId+" joined");
       });
 
-      client.on("MemberLeft", ({channelName, args}) => {
-        const memberId = args[0];
-        addMessage("MemberLeft: channel "+channelName+" member: "+memberId+" left");
+      channel.on("MemberLeft", memberId => {
+        addMessage("MemberLeft: channel "+channelId+" member: "+memberId+" left");
       });
 
-      client.on("ChannelMessage", ({channelName, args}) => {
-        const [message, memberId] = args;
-        addMessage("ChannelMessage: channel "+channelName+", messsage: "+message.text+", memberId: "+memberId);
+      channel.on("ChannelMessage", (message, memberId) => {
+        addMessage("ChannelMessage: channel "+channelId+", messsage: "+message.text+", memberId: "+memberId);
       });
 
       client.on("MessageFromPeer", (message, peerId) => {

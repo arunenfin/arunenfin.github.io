@@ -13,14 +13,43 @@
   <body>
     <h1>Agora RTM</h1>
     <p>This is for testing Agora RTM</p>
+    <p id="messages"></p>
 
     <!-- Optional JavaScript -->
     <script src="./libs/agora-rtm-sdk-1.2.1.js"></script>
     <script>
+      const messagesDiv = document.getElementById("messages");
       const client = AgoraRTM.createInstance('5a806f727de346f4b06b567ad1a64036', { enableLogUpload: false });
       client.login({uid: "wsdfe", token: "0065a806f727de346f4b06b567ad1a64036IADhuEFhyWDTxPxQVPSH3utfJ6P0s52mn7s6TBGXhbkjM7r++7UAAAAAEAAFZYx1gfn8XQEA6AOB+fxd"})
       .then(console.log)
       .catch(console.log)
+
+      client.on("ConnectionStateChanged", (newState, reason) => {
+        const div = document.createElement("div");
+        div.innerHTML = "ConnectionStateChanged: newState: " + newState + ", reason: " + reason;
+        messagesDiv.appendChild(div)
+      })
+
+      client.on("MemberJoined", ({channelName, args}) => {
+        const memberId = args[0];
+        const div = document.createElement("div");
+        div.innerHTML = "MemberJoined: channel "+channelName+" member: "+memberId+" joined";
+        messagesDiv.appendChild(div)
+      });
+
+      client.on("MemberLeft", ({channelName, args}) => {
+        const memberId = args[0];
+        const div = document.createElement("div");
+        div.innerHTML = "MemberLeft: channel "+channelName+" member: "+memberId+" left";
+        messagesDiv.appendChild(div)
+      });
+
+      client.on("ChannelMessage", ({channelName, args}) => {
+        const [message, memberId] = args;
+        const div = document.createElement("div");
+        div.innerHTML = "ChannelMessage: channel "+channelName+", messsage: "+message.text+", memberId: "+memberId;
+        messagesDiv.appendChild(div)
+      });
     </script>
   </body>
 </html>

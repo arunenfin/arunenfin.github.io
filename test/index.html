@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Worker test</title>
-  <script id="worker1" type="javascript/worker">
+  <!--<script id="worker1" type="javascript/worker">
     self.onmessage = function(e) {
       var count = 0;
       var obj = setInterval(() => { 
@@ -16,11 +16,11 @@
         }
       }, 1000)
     };
-  </script>
+  </script>-->
   <script>
-    var blob = new Blob([
-      document.querySelector('#worker1').textContent
-    ], { type: "text/javascript" })
+    // var blob = new Blob([
+    //   document.querySelector('#worker1').textContent
+    // ], { type: "text/javascript" })
   
     // Note: window.webkitURL.createObjectURL() in Chrome 10+.
     // var worker = new Worker(window.URL.createObjectURL(blob));
@@ -32,7 +32,7 @@
       if ('serviceWorker' in navigator) {
 
         window.addEventListener('load', () => {
-          const swUrl = window.URL.createObjectURL(blob);
+          const swUrl = 'sw.js';
 
           registerValidSW(swUrl);
         });
@@ -50,6 +50,9 @@
 
       window.navigator.serviceWorker.ready.then(function(registration) {
         const serviceWorker = registration.active;
+        serviceWorker.onmessage = function (e) {
+          console.log("Received: " + e.data);
+        }
         setTimeout(() => {serviceWorker.postMessage("start");}, 5000)
       }).catch(console.log);
     }

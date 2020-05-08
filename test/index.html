@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Worker test</title>
+  <script id="worker1" type="javascript/worker">
+    self.onmessage = function(e) {
+      var count = 0;
+      var obj = setInterval(() => { 
+        console.log(count); 
+        count++;
+        if(count > 20){ 
+          clearInterval(obj); 
+          self.postMessage('Interval cleared'); 
+        }
+      }, 1000)
+    };
+  </script>
+  <script>
+    var blob = new Blob([
+      document.querySelector('#worker1').textContent
+    ], { type: "text/javascript" })
+  
+    // Note: window.webkitURL.createObjectURL() in Chrome 10+.
+    var worker = new Worker(window.URL.createObjectURL(blob));
+    worker.onmessage = function(e) {
+      console.log("Received: " + e.data);
+    }
+    setTimeout(() => {worker.postMessage("start");}, 5000) // Start the worker.
+  </script>
+</head>
+<body>
+  
+</body>
+</html>

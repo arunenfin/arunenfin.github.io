@@ -23,11 +23,39 @@
     ], { type: "text/javascript" })
   
     // Note: window.webkitURL.createObjectURL() in Chrome 10+.
-    var worker = new Worker(window.URL.createObjectURL(blob));
-    worker.onmessage = function(e) {
-      console.log("Received: " + e.data);
+    // var worker = new Worker(window.URL.createObjectURL(blob));
+    // worker.onmessage = function(e) {
+    //   console.log("Received: " + e.data);
+    // }
+
+    function register() {
+      if ('serviceWorker' in navigator) {
+
+        window.addEventListener('load', () => {
+          const swUrl = window.URL.createObjectURL(blob);
+
+          registerValidSW(swUrl);
+        });
+      }
     }
-    setTimeout(() => {worker.postMessage("start");}, 5000) // Start the worker.
+
+    function registerValidSW(swUrl) {
+      navigator.serviceWorker.register(swUrl).then(function (registration) {
+        // Registration was successful
+        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+      }, function (err) {
+        // registration failed :(
+        console.log('ServiceWorker registration failed: ', err);
+      });
+
+      window.navigator.serviceWorker.ready.then(function(registration) {
+        const serviceWorker = registration.active;
+        setTimeout(() => {serviceWorker.postMessage("start");}, 5000)
+      }).catch(console.log);
+    }
+
+    register();
+    // setTimeout(() => {worker.postMessage("start");}, 5000) // Start the worker.
   </script>
 </head>
 <body>

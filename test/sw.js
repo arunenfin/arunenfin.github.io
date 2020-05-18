@@ -5,7 +5,7 @@ self.onmessage = function(e) {
     count++;
     if(count > 20){ 
       clearInterval(obj); 
-      self.postMessage('Interval cleared'); 
+      // self.postMessage('Interval cleared'); 
     }
   }, 1000)
 };

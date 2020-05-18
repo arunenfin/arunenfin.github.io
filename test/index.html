@@ -28,37 +28,38 @@
     //   console.log("Received: " + e.data);
     // }
 
-    function register() {
-      if ('serviceWorker' in navigator) {
+    // function register() {
+    //   if ('serviceWorker' in navigator) {
 
-        window.addEventListener('load', () => {
-          const swUrl = 'sw.js';
+    //     window.addEventListener('load', () => {
+    //       const swUrl = 'sw.js';
 
-          registerValidSW(swUrl);
-        });
-      }
-    }
+    //       registerValidSW(swUrl);
+    //     });
+    //   }
+    // }
 
-    function registerValidSW(swUrl) {
-      navigator.serviceWorker.register(swUrl).then(function (registration) {
-        // Registration was successful
-        console.log('ServiceWorker registration successful with scope: ', registration.scope);
-      }, function (err) {
-        // registration failed :(
-        console.log('ServiceWorker registration failed: ', err);
-      });
+    // function registerValidSW(swUrl) {
+    //   navigator.serviceWorker.register(swUrl).then(function (registration) {
+    //     // Registration was successful
+    //     console.log('ServiceWorker registration successful with scope: ', registration.scope);
+    //   }, function (err) {
+    //     // registration failed :(
+    //     console.log('ServiceWorker registration failed: ', err);
+    //   });
 
-      window.navigator.serviceWorker.ready.then(function(registration) {
-        const serviceWorker = registration.active;
-        serviceWorker.onmessage = function (e) {
-          console.log("Received: " + e.data);
-        }
-        setTimeout(() => {serviceWorker.postMessage("start");}, 5000)
-      }).catch(console.log);
-    }
+    //   window.navigator.serviceWorker.ready.then(function(registration) {
+    //     const serviceWorker = registration.active;
+    //     serviceWorker.onmessage = function (e) {
+    //       console.log("Received: " + e.data);
+    //     }
+    //     setTimeout(() => {serviceWorker.postMessage("start");}, 5000)
+    //   }).catch(console.log);
+    // }
 
-    register();
+    // register();
     // setTimeout(() => {worker.postMessage("start");}, 5000) // Start the worker.
+    if ('serviceWorker' in navigator) { navigator.serviceWorker.register("sw.js").catch(console.log); }
   </script>
 </head>
 <body>

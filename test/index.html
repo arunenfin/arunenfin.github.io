@@ -67,7 +67,7 @@
         let isActive = registration.active && (registration.active.scriptURL.indexOf("test/sw.js") > -1)
         let isWaiting = registration.waiting && (registration.waiting.scriptURL.indexOf("test/sw.js") > -1)
         if(isActive || isWaiting) {
-          registration.unregister().then(function() { window.location.reload(); }).catch(console.log);
+          registration.unregister().then(function() { console.log("reload"); window.location.reload(); }).catch(console.log);
         }
       }
     }).catch(console.log);

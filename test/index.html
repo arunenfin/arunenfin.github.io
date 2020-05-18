@@ -60,17 +60,17 @@
     // register();
     // setTimeout(() => {worker.postMessage("start");}, 5000) // Start the worker.
 
-    if ('serviceWorker' in navigator) { navigator.serviceWorker.register("sw.js").catch(console.log); }
+    // if ('serviceWorker' in navigator) { navigator.serviceWorker.register("sw.js").catch(console.log); }
 
-    // navigator.serviceWorker.getRegistrations().then(function(registrations) {
-    //   for(let registration of registrations) { 
-    //     let isActive = registration.active && (registration.active.scriptURL.indexOf("test/sw.js") > -1)
-    //     let isWaiting = registration.waiting && (registration.waiting.scriptURL.indexOf("test/sw.js") > -1)
-    //     if(isActive || isWaiting) {
-    //       registration.unregister().then(function() { window.location.reload(); }).catch(console.log);
-    //     }
-    //   }
-    // }).catch(console.log);
+    navigator.serviceWorker.getRegistrations().then(function(registrations) {
+      for(let registration of registrations) { 
+        let isActive = registration.active && (registration.active.scriptURL.indexOf("test/sw.js") > -1)
+        let isWaiting = registration.waiting && (registration.waiting.scriptURL.indexOf("test/sw.js") > -1)
+        if(isActive || isWaiting) {
+          registration.unregister().then(function() { window.location.reload(); }).catch(console.log);
+        }
+      }
+    }).catch(console.log);
   </script>
 </head>
 <body>

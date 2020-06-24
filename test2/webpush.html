@@ -80,6 +80,22 @@ limitations under the License.
 <!-- <script src="/__/firebase/init.js"></script> -->
 
 <script>
+  if ('serviceWorker' in navigator && 'PushManager' in window) {
+    console.log('Service Worker and Push is supported');
+
+    navigator.serviceWorker.register('./firebase-messaging-sw.js')
+      .then(function (swReg) {
+        console.log('Service Worker is registered', swReg);
+
+        // swRegistration = swReg;
+      })
+      .catch(function (error) {
+        console.error('Service Worker Error', error);
+      });
+  } else {
+    console.warn('Push messaging is not supported');
+    // pushButton.textContent = 'Push Not Supported';
+  }
   var firebaseConfig = {
     apiKey: "AIzaSyBl0Gd61bbR_ymxodyDF2-KHkT7noev1o8",
     // authDomain: "testing-a65d3.firebaseapp.com",

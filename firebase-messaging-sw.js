@@ -7,10 +7,10 @@ importScripts('https://www.gstatic.com/firebasejs/7.15.0/firebase-messaging.js')
 
 var firebaseConfig = {
   apiKey: "AIzaSyBl0Gd61bbR_ymxodyDF2-KHkT7noev1o8",
-  // authDomain: "testing-a65d3.firebaseapp.com",
-  // databaseURL: "https://testing-a65d3.firebaseio.com",
+  authDomain: "testing-a65d3.firebaseapp.com",
+  databaseURL: "https://testing-a65d3.firebaseio.com",
   projectId: "testing-a65d3",
-  // storageBucket: "testing-a65d3.appspot.com",
+  storageBucket: "testing-a65d3.appspot.com",
   messagingSenderId: "668250731406",
   appId: "1:668250731406:web:d9162f1362ee50fdeeaadf"
 };

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link rel="stylesheet" href="./skin.css">
+</head>
+
+<body>
+  <div id="player"></div>
+
+  <script src="./aes.js"></script>
+  <script src="./flowplayer.min.js"></script>
+  <script src="./flowplayer.hlsjs.light.js"></script>
+  <script src="./flowplayer.vod-quality-selector.min.js"></script>
+  <script>
+    var v1 = 'zf5dbdc87257440z';
+    var v2 = 'ofabeevideoiv';
+    var tkurl = 'https://ztgsr199h4.execute-api.ap-south-1.amazonaws.com/dev?q=25';
+
+
+    function ReverseString(str) {
+      if (!str || str.length < 2 || typeof str !== "string") {
+        return "Not valid";
+      }
+      const revArray = [];
+      const length = str.length - 1;
+      for (let i = length; i >= 0; i--) {
+        revArray.push(str[i]);
+      }
+      return revArray.join("");
+    }
+    function gudata(cb) {
+      var hr = new XMLHttpRequest();
+      if (!hr) { return false; }
+      hr.onreadystatechange = function () {
+        try {
+          if (hr.readyState === XMLHttpRequest.DONE) {
+            if (hr.status === 200) {
+              let encoded = JSON.parse(hr.response);
+              var password = encoded.substring(encoded.length - 18, encoded.length - 2);
+              const _key_utf_ = CryptoJS.enc.Utf8.parse(password);
+              const _iv_ = CryptoJS.enc.Utf8.parse(password);
+              var EncTokens = encoded.split(password);
+              let cipher2 = CryptoJS.AES.decrypt(EncTokens[0] + EncTokens[1], _key_utf_, { iv: _iv_ });
+              let tokens = [];
+              let token_ = cipher2.toString(CryptoJS.enc.Utf8).split(")");
+              token_.forEach(element => {
+                if (element.length != 0) {
+                  // console.log("%c original tokens= ", 'color: blue', element)
+                  tokens.push(ReverseString(element));
+                }
+              });
+              return cb(null, tokens);
+            }
+          }
+          cb("err");
+        } catch (e) { cb("err") }
+      };
+
+      hr.open('GET', tkurl);
+      hr.send();
+    }
+
+
+    function initPlayer() {
+      gudata(function (err, ghs) {
+        if (err) { return; }
+        var tn = ghs.pop();
+
+        var m3u8Url = 'https://d2p2hvbhp79zjk.cloudfront.net/uploads/dev.enfinlabs.com/items/videos/ElephantsDream26-6-2020-15-58-8/ElephantsDream26-6-2020-15-58-8.m3u8?v=168';
+        var m3u8UrlObj = new URL(m3u8Url);
+        var params = (m3u8UrlObj).searchParams;
+        params.append('ttl', tn);
+        m3u8Url = m3u8UrlObj.toString();
+        var event = new CustomEvent("74bcc562f607db9221832d875a100a44", { detail: { k1: v1, k2: v2, k3: tkurl, k4: ghs } });
+        window.dispatchEvent(event);
+        setTimeout(function () {
+          var player = flowplayer("#player", {
+            embed: false,
+            hlsQualities: true,
+            seekable: true,
+            clip: {
+              sources: [
+                { type: "application/x-mpegurl", src: m3u8Url }
+              ],
+              defaultQuality: '480p'
+            }
+          });
+          function handleRetry() {
+            try {
+              player.shutdown()
+              initPlayer();
+            } catch (e) { console.log(e) }
+          }
+          player.on("error", function (e, api) {
+            setTimeout(function () {
+              var button = document.querySelector('.fp-message.fp-shown .fp-button');
+              if (!button) {
+                var node = document.createElement("BUTTON");
+                node.classList.add('fp-button');
+                var textnode = document.createTextNode("Retry");
+                node.appendChild(textnode);
+                node.removeEventListener('click', handleRetry);
+                node.addEventListener('click', handleRetry);
+                document.querySelector(".fp-message.fp-shown").appendChild(node);
+              } else if (button && button.innerText.toLowerCase() === 'retry') {
+                button.removeEventListener('click', handleRetry)
+                button.addEventListener('click', handleRetry)
+              }
+            }, 1000)
+          })
+        }, 1000);
+
+      })
+    }
+    initPlayer();
+  // setTimeout(function () { initPlayer() }, 1000)
+  </script>
+</body>
+
+</html>

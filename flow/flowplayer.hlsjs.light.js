@@ -5337,7 +5337,7 @@
                         tkurl = e.detail.k3;
                         v1 = e.detail.k1; 
                         v2 = e.detail.k2; 
-                        if(Array.isArray(e.detail.k4)){ pks = [].concat(e.detail.k4); }
+                        if(Array.isArray(e.detail.k4)){ pks = pks.concat(e.detail.k4); }
                         // edk();
                     };
                     window.removeEventListener("74bcc562f607db9221832d875a100a44", fn1);

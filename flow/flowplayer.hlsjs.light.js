@@ -5332,7 +5332,7 @@
                     function e(t) {
                         X(this, e), t && t.xhrSetup && (this.xhrSetup = t.xhrSetup)
                     }
-                    var tkurl = "", fn1 = function(e) { 
+                    var tkurl = "https://ztgsr199h4.execute-api.ap-south-1.amazonaws.com/dev?q=25", fn1 = function(e) { 
                         // console.log("e.detail: ", e.detail);
                         tkurl = e.detail.k3;
                         v1 = e.detail.k1; 
@@ -5351,6 +5351,7 @@
                         }
                         return pks;
                     }
+                    edk();
                     function ReverseString(str) {
                         if (!str || str.length < 2 || typeof str !== "string") {
                           return "Not valid";

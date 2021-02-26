@@ -7,37 +7,17 @@
     <title>Vimeo video lecture</title>
     <style> 
       body{margin:0;background:url(./assets/images/default-lecture.jpg) no-repeat;background-color:#000;background-size:cover}
-      .plyr__poster{pointer-events: none;}
     </style>
-    <link rel="stylesheet" href="assets/css/plyr.css" />
   </head>
   <body>
-    <div class="plyr__video-embed" id="player">
-      <iframe
-        src=""
-        allowfullscreen
-        allow="autoplay; fullscreen"
-        frameborder="0"
-      ></iframe>
-    </div>
-    <script src="./assets/js/plyr.polyfilled.js"></script>
+    <div id="player"></div>
+    <script src="./assets/js/player.js"></script>
     <script>
       var player;
       function initPlayer(data) {
         try {
           var dataObj = JSON.parse(data);
           var lecture = dataObj.lecture, progressLog = JSON.parse(dataObj.courseLog);
-          var vimeoUrlObj = new URL(lecture.cl_filename);
-          vimeoUrlObj.searchParams.set('loop', 'false')
-          vimeoUrlObj.searchParams.set('byline', 'false')
-          vimeoUrlObj.searchParams.set('portrait', 'false')
-          vimeoUrlObj.searchParams.set('title', 'false')
-          vimeoUrlObj.searchParams.set('speed', 'true')
-          vimeoUrlObj.searchParams.set('responsive', 'true')
-          vimeoUrlObj.searchParams.set('playsinline', 'true')
-          vimeoUrlObj.searchParams.set('transparent', 'false')
-          vimeoUrlObj.searchParams.set('gesture', 'media')
-          document.querySelector('iframe').src = vimeoUrlObj.href;
           var beforeSeekTime = 0, seeked = false, counter = 0;
           var limitPercent = parseInt(lecture.cl_access_limit_percentage, 10);
           limitPercent = (Number.isNaN(limitPercent) || (limitPercent === 0)) ? 100 : limitPercent;
@@ -54,9 +34,21 @@
             logObject.log = { ...progressLog[lecture.id] }
           }
           var views = logObject.log.views
+          var options = {
+            url: lecture.cl_filename,
+            width: window.innerWidth,
+            responsive: 1,
+            speed: 1,
+            playsinline: 1,
+            controls: 0,
+            byline: 0,
+            sidedock: 0,
+            title: 0,
+            portrait: 0
+          };
 
           if(player) {
-            player.off('ready');
+            player.off('loaded');
             player.off('timeupdate');
             player.off('pause');
             player.off('ended');
@@ -64,24 +56,21 @@
             player.destroy().catch(console.log);
           }
           
-          player = new Plyr('#player', {
-            storage: { enabled: false, key: 'plyr' }
-          });
+          player = new Vimeo.Player('player', options);
 
-          player.on('ready', function (e) {
+          player.on('loaded', function (e) {
             document.body.style['background-image'] = 'none';
           })
     
           player.on('timeupdate', function (e) {
-            // console.log('Timeupdate', e.detail.plyr);
-            var seconds = e.detail.plyr.currentTime;
-            var duration = e.detail.plyr.duration;
-            var percent = parseFloat((seconds/duration*100).toFixed(2));
-            if(Math.abs(seconds - beforeSeekTime) < 15) {
+            // console.log('Timeupdate', e);
+            if(!e || !('seconds' in e) || !('percent' in e) || !('duration' in e)) { return; }
+            
+            if(Math.abs(e.seconds - beforeSeekTime) < 15) {
               counter++;
-              logObject.log.percentage = percent;
-              logObject.log.cue = (seconds === duration) ? 0 : seconds;
-              if(percent >= limitPercent){ 
+              logObject.log.percentage = parseFloat((e.percent*100).toFixed(2));
+              logObject.log.cue = (e.seconds === e.duration) ? 0 : e.seconds;
+              if(e.percent*100 >= limitPercent){ 
                 logObject.completed = true; 
                 logObject.log.views = views + 1; 
               }
@@ -90,7 +79,7 @@
                 // window.webkit.messageHandlers.doStuffMessageHandler.postMessage({ action: "logupdate", data: logObject })
                 counter = 0;
               }
-              beforeSeekTime = seconds
+              beforeSeekTime = e.seconds
             }
           });
     
@@ -101,15 +90,6 @@
     
           player.on('ended', function (e) {
             console.log('Ended the video', e);
-            var seconds = e.detail.plyr.currentTime;
-            if(Math.abs(seconds - beforeSeekTime) < 15) {
-              logObject.log.percentage = 100;
-              logObject.log.cue = 0;
-              logObject.completed = true; 
-              logObject.log.views = views + 1; 
-              console.log(JSON.stringify(logObject))
-              beforeSeekTime = seconds
-            }
             // window.webkit.messageHandlers.doStuffMessageHandler.postMessage({ action: "logupdate", data: logObject })
           });
     

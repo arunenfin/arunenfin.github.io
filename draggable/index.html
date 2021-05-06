@@ -10,7 +10,7 @@
   .draggable { width: 90px; height: 90px; padding: 0; float: left; margin: 0; border: 1px solid silver }
   #draggable4 { background-color: blue; }
   #draggable3 { background-color: blueviolet; }
-  #containment-wrapper { width: 95%; height:500px; border:2px solid #ccc; padding: 5px; }
+  #containment-wrapper { width: auto; height:400px; border:2px solid #ccc; margin: 50px; }
   h3 { clear: left; }
   .img {
   /* resize: both;
@@ -62,8 +62,12 @@
     });
     $( ".draggable" ).each(function( index, element ) {
       $(element).css({ 'z-index': index })
-      if(index === 2) 
-        $(element).offset({ top: 200, left: 15 })
+      if(index === 2) {
+        var offset = $("#containment-wrapper").offset();
+        var containerLeft = offset.left + 2
+        var containerTop = offset.top + 2
+        $(element).offset({ top: containerTop + 100, left: containerLeft + 50 })
+      }
       topIdx = index;
     });
   });

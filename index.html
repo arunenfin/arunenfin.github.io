@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Vimeo video lecture</title>
+    <style> 
+      body{margin:0;background:url(./assets/images/default-lecture.jpg) no-repeat;background-color:#000;background-size:cover}
+      .plyr__poster{pointer-events: none;}
+    </style>
+    <link rel="stylesheet" href="assets/css/plyr.css" />
+  </head>
+  <body>
+    <div class="plyr__video-embed" id="player">
+      <iframe
+        src=""
+        allowfullscreen
+        allow="autoplay; fullscreen"
+        frameborder="0"
+      ></iframe>
+    </div>
+    <script src="./assets/js/plyr.polyfilled.js"></script>
+    <script>
+      var player;
+      function initPlayer(data) {
+        try {
+          var dataObj = JSON.parse(data);
+          var lecture = dataObj.lecture, progressLog = JSON.parse(dataObj.courseLog);
+          var vimeoUrlObj = new URL(lecture.cl_filename);
+          vimeoUrlObj.searchParams.set('loop', 'false')
+          vimeoUrlObj.searchParams.set('byline', 'false')
+          vimeoUrlObj.searchParams.set('portrait', 'false')
+          vimeoUrlObj.searchParams.set('title', 'false')
+          vimeoUrlObj.searchParams.set('speed', 'true')
+          vimeoUrlObj.searchParams.set('responsive', 'true')
+          vimeoUrlObj.searchParams.set('playsinline', 'true')
+          vimeoUrlObj.searchParams.set('transparent', 'false')
+          vimeoUrlObj.searchParams.set('gesture', 'media')
+          document.querySelector('iframe').src = vimeoUrlObj.href;
+          var beforeSeekTime = 0, seeked = false, counter = 0;
+          var limitPercent = parseInt(lecture.cl_access_limit_percentage, 10);
+          limitPercent = (Number.isNaN(limitPercent) || (limitPercent === 0)) ? 100 : limitPercent;
+          var logObject = {
+            log: {
+              "lecture_id": lecture.id,
+              "percentage": 0,
+              "cue": 0,
+              "views": 0
+            },
+            completed: false
+          }
+          if(progressLog[lecture.id]) {
+            logObject.log = { ...progressLog[lecture.id] }
+          }
+          var views = logObject.log.views
+
+          if(player) {
+            player.off('ready');
+            player.off('timeupdate');
+            player.off('pause');
+            player.off('ended');
+            player.off('error');
+            player.destroy().catch(console.log);
+          }
+          
+          player = new Plyr('#player', {
+            storage: { enabled: false, key: 'plyr' }
+          });
+
+          player.on('ready', function (e) {
+            document.body.style['background-image'] = 'none';
+          })
+    
+          player.on('timeupdate', function (e) {
+            // console.log('Timeupdate', e.detail.plyr);
+            var seconds = e.detail.plyr.currentTime;
+            var duration = e.detail.plyr.duration;
+            var percent = parseFloat((seconds/duration*100).toFixed(2));
+            if(Math.abs(seconds - beforeSeekTime) < 15) {
+              counter++;
+              logObject.log.percentage = percent;
+              logObject.log.cue = (seconds === duration) ? 0 : seconds;
+              if(percent >= limitPercent){ 
+                logObject.completed = true; 
+                logObject.log.views = views + 1; 
+              }
+              if(counter === 5){
+                console.log(JSON.stringify(logObject))
+                // window.webkit.messageHandlers.doStuffMessageHandler.postMessage({ action: "logupdate", data: logObject })
+                counter = 0;
+              }
+              beforeSeekTime = seconds
+            }
+          });
+    
+          player.on('pause', function (e) {
+            console.log('Paused the video', e);
+            // window.webkit.messageHandlers.doStuffMessageHandler.postMessage({ action: "logupdate", data: logObject })
+          });
+    
+          player.on('ended', function (e) {
+            console.log('Ended the video', e);
+            var seconds = e.detail.plyr.currentTime;
+            if(Math.abs(seconds - beforeSeekTime) < 15) {
+              logObject.log.percentage = 100;
+              logObject.log.cue = 0;
+              logObject.completed = true; 
+              logObject.log.views = views + 1; 
+              console.log(JSON.stringify(logObject))
+              beforeSeekTime = seconds
+            }
+            // window.webkit.messageHandlers.doStuffMessageHandler.postMessage({ action: "logupdate", data: logObject })
+          });
+    
+          player.on('error', function (e) {
+            // window.webkit.messageHandlers.doStuffMessageHandler.postMessage({ action: "logupdate", data: logObject })
+          });
+        } catch(err) {
+          console.log(err)
+          // window.webkit.messageHandlers.doStuffMessageHandler.postMessage({ action: "logupdate", data: logObject })
+        }
+      }
+
+      initPlayer(JSON.stringify({
+        lecture: {
+						"id": "1362",
+						"cl_lecture_name": "New Vimeo Video",
+						"cl_filename": "https:\/\/player.vimeo.com\/video\/347119375",
+						"cl_filename_m3u8": null,
+						"cl_lecture_image_splash": null,
+						"cl_lecture_description": "Vimeo video",
+						"cl_lecture_content": null,
+						"cl_org_file_name": null,
+						"cl_total_page": "0",
+						"cl_course_id": "80",
+						"cl_section_id": "119",
+						"cl_order_no": "8",
+						"cl_lecture_type": "15",
+						"cl_limited_access": "0",
+						"cl_conversion_status": "1",
+						"cl_copy_queue_id": null,
+						"cl_width": "100",
+						"cl_height": "100",
+						"cl_duration": "62",
+						"cl_status": "1",
+						"cl_access_restriction": null,
+						"cl_support_files": null,
+						"cl_deleted": "0",
+						"cl_sent_mail_on_lecture_creation": "0",
+						"cl_lecture_preview": "0",
+						"cl_lecture_image": "",
+						"cl_video_id": "",
+						"cl_video_id_encrypted": null,
+						"cl_parent_course_id": "0",
+						"cl_parent_lecture_id": "0",
+						"cl_dripping_days": null,
+						"cl_access_limit_percentage": "0",
+						"cl_samba_live": null,
+						"a_duration": null,
+						"assessment_id": null,
+						"duration_hm": "1:2",
+						"num_of_question": "0",
+						"unique": ""
+					},
+          courseLog: JSON.stringify({
+            "753": {
+              "lecture_id": "753",
+              "percentage": 100,
+              "cue": 0,
+              "views": 1
+            },
+            "754": {
+              "lecture_id": "754",
+              "views": 2,
+              "cue": 0,
+              "percentage": 100
+            }
+          })
+      }))
+    </script>
+  </body>
+</html>
